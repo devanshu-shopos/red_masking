@@ -1,0 +1,65 @@
+# Virtual Environment
+comfyui_env/
+venv/
+env/
+.venv/
+
+# ComfyUI Generated Files
+ComfyUI/output/*
+!ComfyUI/output/_output_images_will_be_put_here
+!ComfyUI/output/hogya_00001_.png
+
+# ComfyUI User Data
+ComfyUI/user/
+ComfyUI/temp/
+ComfyUI/.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
