@@ -147,12 +147,15 @@ def main():
     
     args = parser.parse_args()
     
-    # Set output path
+    # Set output path - save in dedicated output folder
     if args.output:
         output_path = args.output
+        # If it's just a filename, put it in output folder
+        if not os.path.dirname(output_path):
+            output_path = script_dir / "output" / output_path
     else:
         input_path = Path(args.image)
-        output_path = input_path.parent / f"minimal_red_masked_{input_path.stem}.png"
+        output_path = script_dir / "output" / f"minimal_red_masked_{input_path.stem}.png"
     
     try:
         print("🚀 MINIMAL COMFYUI AI RED MASKING")

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Minimal Red Masking - Single-command execution
-# Usage: ./red_mask_minimal <image_path> [output_name]
+# Usage: ./red_mask_minimal <image_path> [output_name] [detection_prompt]
 
 # Get current directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -15,13 +15,18 @@ fi
 # Set default values
 IMAGE_PATH="${1:-test.png}"
 OUTPUT_NAME="${2:-red_masked}"
+PROMPT="${3:-shirt}"
 
 echo "🔴 MINIMAL AI RED MASKING"
 echo "=========================="
 echo "Image: $IMAGE_PATH"
 echo "Output: ${OUTPUT_NAME}.png"
+echo "Detecting: $PROMPT"
 echo ""
 
 # Run the minimal AI detection
 cd "$DIR"
-python minimal_comfyui_detection.py "$IMAGE_PATH" -o "${OUTPUT_NAME}.png"
+python minimal_comfyui_detection.py "$IMAGE_PATH" -o "${OUTPUT_NAME}.png" -p "$PROMPT"
+
+echo ""
+echo "📁 Output saved in: output/${OUTPUT_NAME}.png"
