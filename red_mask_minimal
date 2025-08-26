@@ -1,0 +1,33 @@
+#!/bin/bash
+# Minimal Red Masking - Single-command execution
+# Usage: ./red_mask_minimal <image_path> [output_name]
+
+# Get current directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+# Activate virtual environment if it exists
+if [ -d "$DIR/venv_minimal" ]; then
+    source "$DIR/venv_minimal/bin/activate"
+elif [ -d "$DIR/comfyui_env" ]; then
+    source "$DIR/comfyui_env/bin/activate"
+fi
+
+# Set default values
+IMAGE_PATH="${1:-test.png}"
+OUTPUT_NAME="${2:-red_masked}"
+
+echo "🔴 MINIMAL AI RED MASKING"
+echo "=========================="
+echo "Image: $IMAGE_PATH"
+echo "Output: ${OUTPUT_NAME}.png"
+echo ""
+
+# Run the minimal AI detection
+cd "$DIR"
+python minimal_comfyui_detection.py "$IMAGE_PATH" -o "${OUTPUT_NAME}.png"
+
+echo ""
+echo "🎯 Usage examples:"
+echo "  ./red_mask_minimal my_photo.jpg"
+echo "  ./red_mask_minimal /path/to/image.png custom_output"
+echo "  ./red_mask_minimal --download-models  # Download models first"

@@ -1,0 +1,18 @@
+# Minimal AI Red Masking Dependencies
+# Core PyTorch and Vision
+torch>=1.13.0
+torchvision>=0.14.0
+Pillow>=9.0.0
+numpy>=1.21.0
+
+# GroundingDINO Dependencies (install from source)
+transformers>=4.0.0
+timm>=0.9.0
+addict>=2.4.0
+yapf>=0.32.0
+
+# SAM Dependencies (install from source)
+# segment_anything will be installed from GitHub
+
+# Additional utilities
+opencv-python>=4.5.0
