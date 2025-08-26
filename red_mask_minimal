@@ -25,9 +25,3 @@ echo ""
 # Run the minimal AI detection
 cd "$DIR"
 python minimal_comfyui_detection.py "$IMAGE_PATH" -o "${OUTPUT_NAME}.png"
-
-echo ""
-echo "🎯 Usage examples:"
-echo "  ./red_mask_minimal my_photo.jpg"
-echo "  ./red_mask_minimal /path/to/image.png custom_output"
-echo "  ./red_mask_minimal --download-models  # Download models first"

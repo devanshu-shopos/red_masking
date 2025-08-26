@@ -4,136 +4,81 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an AI-powered image processing workflow that detects shirt objects in images using **GroundingDINO + SAM** and applies precise red masking ONLY to detected shirt areas. The project offers **two versions**: a **minimal standalone** version (recommended) and a **full ComfyUI** version for advanced use cases.
+This is a **minimal AI-powered image processing system** that detects shirt objects in images using **GroundingDINO + SAM** and applies precise red masking ONLY to detected shirt areas. The system is optimized for production deployment with minimal dependencies and instant startup.
 
-## Two Implementation Approaches
+## Current Implementation
 
-### 🎯 **Minimal Version (Primary - Recommended)**
-- **File**: `minimal_comfyui_detection.py`
-- **Executable**: `red_mask_minimal`
-- **Size**: ~1.1GB (60% smaller than full)
-- **Dependencies**: Essential AI models only
-- **Startup**: Instant (no server overhead)
-- **Use case**: Production, deployment, quick testing
-
-### 🔧 **Full ComfyUI Version (Secondary)**
-- **File**: `process_direct_ai_detection.py` 
-- **Executable**: `red_mask`
-- **Size**: ~2.4GB (complete framework)
-- **Dependencies**: Full ComfyUI ecosystem
-- **Startup**: 30+ seconds (framework initialization)
-- **Use case**: Research, advanced workflows, ComfyUI ecosystem
-
-## Current Working Implementation
-
-**✅ BOTH VERSIONS WORKING**
-- **Minimal**: Uses ComfyUI nodes directly without server framework
-- **Full**: Uses complete ComfyUI system with all components
+**✅ MINIMAL PRODUCTION-READY SYSTEM**
+- **Main Script**: `minimal_comfyui_detection.py` - Lightweight AI detection engine
+- **Executable**: `red_mask_minimal` - Single-command interface
 - **Method**: GroundingDINO text-guided object detection + SAM precise segmentation
 - **Result**: Perfect red masking only on detected shirt areas
+- **Architecture**: Uses ComfyUI nodes directly without server framework overhead
 
-**❌ REMOVED: All faulty approaches including:**
-- Color-based detection methods
-- Geometric overlay approaches
-- Brightness-based targeting
-- Multi-layer enhancement techniques
+**🔧 Design Philosophy:**
+- **Minimal overhead**: Direct AI node usage without web server/GUI components
+- **Production ready**: Essential dependencies only (~8 packages vs 50+ in full frameworks)
+- **Same AI accuracy**: Identical GroundingDINO + SAM models as full systems
+- **Instant startup**: No framework initialization - direct model execution
 
-## Environment Setup Options
+## Environment Setup
 
-### Option 1: Minimal Setup (Recommended)
-
-**Prerequisites:**
+### Prerequisites
 - Python 3.12+
 - Git
-- ~1.1GB storage space
+- ~1.1GB storage space (AI models)
+- Internet connection for initial downloads
 
-**Quick Installation:**
+### Installation Steps
+
 ```bash
 cd "red masking"
-python3 -m venv venv_minimal
-source venv_minimal/bin/activate
 
-# Core dependencies only
+# Create minimal virtual environment
+python3 -m venv venv_minimal
+source venv_minimal/bin/activate  # Mac/Linux
+# or venv_minimal\Scripts\activate  # Windows
+
+# Install essential dependencies only
+pip install -r requirements_minimal.txt
+
+# Alternative direct installation:
 pip install torch torchvision Pillow numpy transformers timm addict yapf opencv-python
 
-# Download AI models (1GB)
-mkdir -p models
-curl -k -L "https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/groundingdino_swint_ogc.pth" \
-  -o "models/groundingdino_swint_ogc.pth"
-curl -k -L "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth" \
-  -o "models/sam_vit_b_01ec64.pth"
-
+# Make executable
 chmod +x red_mask_minimal
-./red_mask_minimal test.png
+
+# Test with sample image
+./red_mask_minimal ComfyUI/input/test.png demo_output
 ```
 
-### Option 2: Full ComfyUI Setup
+### Model Requirements
 
-**Prerequisites:**
-- Python 3.12+
-- Git  
-- ~2.4GB storage space
+The system automatically loads AI models from ComfyUI structure:
+- **GroundingDINO**: `ComfyUI/models/grounding-dino/groundingdino_swint_ogc.pth` (694MB)
+- **SAM**: `ComfyUI/models/sams/sam_vit_b_01ec64.pth` (375MB) 
+- **Config**: `ComfyUI/models/grounding-dino/GroundingDINO_SwinT_OGC.cfg.py`
 
-**Complete Installation:**
-```bash
-cd "red masking"
-python3 -m venv comfyui_env
-source comfyui_env/bin/activate
+If models are missing, the system provides clear download instructions.
 
-# Install ComfyUI framework
-git clone https://github.com/comfyanonymous/ComfyUI.git
-pip install -r ComfyUI/requirements.txt
+## Architecture
 
-# Install CRITICAL custom nodes
-cd ComfyUI/custom_nodes
-git clone https://github.com/storyicon/comfyui_segment_anything.git
-git clone https://github.com/kijai/ComfyUI-segment-anything-2.git
-git clone https://github.com/chflame163/ComfyUI_LayerStyle.git
-git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git
-cd ../..
-
-# Install dependencies
-pip install segment_anything timm addict yapf platformdirs
-pip install -r ComfyUI/custom_nodes/ComfyUI_LayerStyle/requirements.txt
-
-# Download models to ComfyUI directories
-mkdir -p ComfyUI/models/grounding-dino ComfyUI/models/sams
-curl -k -L "https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/groundingdino_swint_ogc.pth" \
-  -o "ComfyUI/models/grounding-dino/groundingdino_swint_ogc.pth"
-curl -k -L "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth" \
-  -o "ComfyUI/models/sams/sam_vit_b_01ec64.pth"
-
-chmod +x red_mask  
-./red_mask ComfyUI/input/test.png
-```
-
-## Architecture Comparison
-
-### Minimal Version Architecture
-**Direct AI Node Usage:**
-1. **Direct Import**: Imports ComfyUI nodes directly without server
+### Minimal AI Detection Pipeline
+1. **Direct Node Import**: Uses ComfyUI nodes without server framework
 2. **GroundingDINO**: Text-guided object detection using prompt "shirt"
 3. **SAM**: Precise segmentation masks for detected objects
 4. **Red Overlay**: Pure red color applied only to AI-detected areas
 5. **No Overhead**: Bypasses web server, APIs, GUI components
 
-**Key Components:**
-- **Node Integration**: Uses existing `comfyui_segment_anything` nodes
-- **Direct Execution**: No ComfyUI server initialization  
+### Key Technical Components
+- **Node Integration**: Direct usage of `comfyui_segment_anything` nodes
 - **Model Management**: Automatic device allocation (MPS/CUDA/CPU)
 - **Tensor Processing**: PyTorch-based image and mask manipulation
+- **Memory Efficiency**: Minimal overhead compared to full frameworks
 
-### Full Version Architecture
-**Complete ComfyUI Pipeline:**
-1. **Framework Init**: Full ComfyUI server and node system
-2. **Custom Nodes**: All 4 custom node packages loaded
-3. **Model Loading**: Through ComfyUI model management system
-4. **Detection Pipeline**: Same GroundingDINO + SAM detection
-5. **Server Overhead**: Full web server and API system loaded
+## Running the System
 
-## Running the Workflows
-
-### 🚀 Minimal Version (Primary Method)
+### 🚀 Primary Usage (Single Command)
 
 **Simple execution:**
 ```bash
@@ -142,45 +87,32 @@ chmod +x red_mask
 
 **Examples:**
 ```bash
-# Quick test
-./red_mask_minimal test.png
+# Process sample image
+./red_mask_minimal ComfyUI/input/test.png
 
-# Custom output name
+# Process with custom output name
 ./red_mask_minimal my_photo.jpg custom_result
 
-# Direct Python with options
+# Process various formats
+./red_mask_minimal shirt.png final_output
+```
+
+### 📋 Advanced Usage
+
+**Direct Python execution with parameters:**
+```bash
 python minimal_comfyui_detection.py image.jpg -o output.png -p "jacket" -t 0.2
 ```
 
-### 🔧 Full ComfyUI Version
+**Available options:**
+- `-o, --output`: Output file path
+- `-p, --prompt`: Detection prompt (default: "shirt")
+- `-t, --threshold`: Detection threshold (default: 0.3)
 
-**Complete framework execution:**
-```bash
-./red_mask <image_path> [output_name]
+## Configuration
 
-# Example
-./red_mask ComfyUI/input/test.png full_result
-```
-
-### ✅ Installation Verification
-
-**Minimal version:**
-```bash
-source venv_minimal/bin/activate
-./red_mask_minimal test.png verification
-```
-
-**Full version:**
-```bash
-source comfyui_env/bin/activate  
-python verify_installation.py
-./red_mask ComfyUI/input/test.png verification
-```
-
-## Configuration Options
-
-### AI Detection Parameters (Both Versions)
-- **Detection Prompt**: "shirt" (customizable)
+### AI Detection Parameters
+- **Detection Prompt**: "shirt" (customizable in script)
 - **Detection Threshold**: 0.3 (30% confidence minimum)
 - **Model Loading**: GroundingDINO SwinT OGC + SAM ViT-B
 - **Red Overlay**: Pure red (RGB: 255, 0, 0)
@@ -189,66 +121,60 @@ python verify_installation.py
 ### Performance Settings
 - **GPU Support**: Auto-detects MPS (Mac), CUDA (PC), CPU fallback
 - **Memory Usage**: ~2GB during processing
-- **Processing Time**: 
-  - Minimal: 10-20 seconds (no server overhead)
-  - Full: 30-60 seconds (framework initialization)
-- **Image Support**: All PIL formats (JPG, PNG, etc.)
+- **Processing Time**: 10-30 seconds per image (instant startup)
+- **Image Support**: All PIL formats (JPG, PNG, BMP, TIFF, WebP, etc.)
 
-## File Structure
+## Clean File Structure
 
 ```
 red-masking/
-├── 🚀 red_mask_minimal                # MINIMAL EXECUTABLE (Recommended)
-├── minimal_comfyui_detection.py       # Minimal AI engine
-├── red_mask                           # Full ComfyUI executable  
-├── process_direct_ai_detection.py     # Full AI engine
-├── requirements_minimal.txt           # Minimal dependencies
-├── requirements.txt                   # Full dependencies
-├── verify_installation.py            # Verification utility
+├── 🚀 red_mask_minimal                # MAIN EXECUTABLE
+├── minimal_comfyui_detection.py       # Minimal AI detection engine  
+├── requirements_minimal.txt           # Essential dependencies only
 ├── README.md                          # Complete documentation
-├── CLAUDE.md                         # This file
+├── CLAUDE.md                         # This development guide
 ├── example_output.png                # Reference result
-├── models/                           # Minimal version models
-│   ├── groundingdino_swint_ogc.pth   # Object detection (694MB)
-│   ├── GroundingDINO_SwinT_OGC.cfg.py
-│   └── sam_vit_b_01ec64.pth         # Segmentation (375MB)
-├── venv_minimal/                     # Minimal environment
-├── comfyui_env/                      # Full environment (optional)
-└── ComfyUI/                          # Full framework (optional)
+├── .gitignore                        # Git ignore rules
+├── venv_minimal/                     # Virtual environment (setup creates)
+└── ComfyUI/                          # ComfyUI nodes and models
     ├── custom_nodes/                 # AI model extensions
-    │   ├── comfyui_segment_anything/ # GroundingDINO + SAM (CRITICAL)
-    │   ├── ComfyUI-segment-anything-2/
-    │   ├── ComfyUI_LayerStyle/
-    │   └── ComfyUI-Impact-Pack/
-    ├── models/                       # ComfyUI model directories
-    ├── input/                        # Input images  
-    └── output/                       # Generated results
+    │   └── comfyui_segment_anything/ # GroundingDINO + SAM (CRITICAL)
+    ├── models/                       # AI models (1.1GB total)
+    │   ├── grounding-dino/          # Object detection
+    │   │   ├── groundingdino_swint_ogc.pth    (694MB)
+    │   │   └── GroundingDINO_SwinT_OGC.cfg.py
+    │   └── sams/                    # Segmentation
+    │       └── sam_vit_b_01ec64.pth (375MB)
+    ├── input/                       # Input images directory
+    │   └── test.png                 # Sample test image
+    └── output/                      # Generated results directory
 ```
 
-## Technical Implementation Notes
+## Technical Implementation
 
-### Minimal Version Implementation
+### Core Implementation Details
+
 **File**: `minimal_comfyui_detection.py`
 
 **Key Classes and Methods:**
 ```python
 class MinimalComfyUIDetector:
     def load_models()                    # Direct ComfyUI node loading
-    def detect_and_segment()             # Combined detection + segmentation  
-    def apply_red_masking()              # Red overlay application
+    def detect_and_segment()             # Combined detection + segmentation
+    def apply_red_masking()              # Red overlay application  
     def process_image()                  # Complete pipeline
 ```
 
-**Node Usage:**
+**Direct Node Usage:**
 ```python
-# Direct ComfyUI node imports (no server)
+# Import ComfyUI nodes without server framework
 from node import SAMModelLoader, GroundingDinoModelLoader, GroundingDinoSAMSegment
 
-# Model loading
+# Direct model loading
 groundingdino_loader = GroundingDinoModelLoader()
 sam_loader = SAMModelLoader()
 
-# Detection + segmentation in one call
+# Combined detection + segmentation in single call
 grounding_sam_segment = GroundingDinoSAMSegment()
 result = grounding_sam_segment.main(
     prompt="shirt", threshold=0.3,
@@ -257,88 +183,109 @@ result = grounding_sam_segment.main(
 )
 ```
 
-### Full Version Implementation  
-**File**: `process_direct_ai_detection.py`
-
-Uses complete ComfyUI framework with all components loaded.
-
-## Performance Comparison
-
-| Aspect | Minimal Version | Full Version |
-|--------|----------------|--------------|
-| **Size** | 1.1GB | 2.4GB |
-| **Startup** | Instant | 30+ seconds |
-| **Memory** | Lower overhead | Higher overhead |
-| **Dependencies** | Essential only | Complete ecosystem |
-| **Accuracy** | Identical AI models | Identical AI models |
-| **Use Case** | Production/deployment | Research/advanced |
+### Minimal System Advantages
+- **Size**: 1.1GB total vs 2.4GB+ full frameworks
+- **Startup**: Instant vs 30+ seconds framework initialization
+- **Dependencies**: ~8 essential packages vs 50+ in full systems
+- **Memory**: Lower overhead due to direct node usage
+- **Accuracy**: Identical AI models - same detection quality
+- **Deployment**: Perfect for production, CI/CD, automation
 
 ## Troubleshooting
 
-### Minimal Version Issues
-- **Node loading fails**: Ensure ComfyUI directory exists or install standalone dependencies
-- **Model not found**: Check models/ directory has required .pth files
-- **Import errors**: Activate venv_minimal and install requirements_minimal.txt
+### Model Loading Issues
+- **Check models exist**: `ls -la ComfyUI/models/grounding-dino/ ComfyUI/models/sams/`
+- **Re-download if missing**: Use curl commands in README
+- **Verify file sizes**: GroundingDINO ~694MB, SAM ~375MB
 
-### Full Version Issues  
-- **ComfyUI initialization fails**: Run verify_installation.py  
-- **Custom nodes missing**: Re-install comfyui_segment_anything node
-- **Model paths wrong**: Check ComfyUI/models/ directory structure
+### Node Loading Issues  
+- **Check custom node**: `ls -la ComfyUI/custom_nodes/comfyui_segment_anything/`
+- **Reinstall if missing**: `git clone https://github.com/storyicon/comfyui_segment_anything.git`
+- **Environment activation**: `source venv_minimal/bin/activate`
+
+### Detection Issues
+- **Try different prompts**: "t-shirt", "jacket", "blazer", "clothing"
+- **Adjust threshold**: Lower values (0.2) = more sensitive, Higher (0.5) = more strict
+- **Image quality**: Ensure clear, well-lit garments
+- **Multiple objects**: System detects all matching objects in image
 
 ### Common Issues
 - **SSL certificate errors**: Use `-k` flag in curl downloads
-- **No objects detected**: Try lower threshold (0.2) or different prompt
+- **Permission errors**: `chmod +x red_mask_minimal`
 - **Memory errors**: Reduce image size or ensure sufficient RAM
+- **Import errors**: Check virtual environment activation
 
 ## Development Guidelines
 
 ### Modifying Detection Parameters
 
-**Minimal version** - Edit `minimal_comfyui_detection.py`:
+**Edit `minimal_comfyui_detection.py`:**
 ```python
 # Line ~98: Change detection prompt
 prompt="shirt"  # Try: "t-shirt", "jacket", "blazer", "clothing"
 
 # Line ~98: Change detection threshold
 threshold=0.3   # Lower = more sensitive, Higher = more strict
-```
 
-**Full version** - Edit `process_direct_ai_detection.py`:
-```python  
-# Line ~171-172: Same parameter modification
+# Line ~113: Change red color values
+red_overlay[:, :, :, 0] = 1.0  # Red channel (0.0-1.0)
+red_overlay[:, :, :, 1] = 0.0  # Green channel
+red_overlay[:, :, :, 2] = 0.0  # Blue channel
 ```
 
 ### Adding New Features
-- **Minimal**: Keep lightweight, avoid heavy dependencies
-- **Full**: Can leverage complete ComfyUI ecosystem
-- **Both**: Maintain same AI detection accuracy
-- **Testing**: Test both versions before committing
+- **Keep minimal**: Avoid heavy dependencies that increase footprint
+- **Maintain compatibility**: Ensure ComfyUI node structure compatibility
+- **Test thoroughly**: Verify with various image types and sizes
+- **Document changes**: Update README and this file for modifications
 
 ### Code Standards
-- Keep minimal version focused on essential functionality
-- Use full version for experimental/advanced features
-- Maintain backward compatibility for both versions
-- Document performance differences
+- **Focus on essentials**: Only include features needed for AI detection
+- **Optimize for deployment**: Consider production use cases
+- **Maintain performance**: Keep startup time minimal
+- **Error handling**: Provide clear error messages for common issues
 
-## Version Selection Guidelines
+## Performance Optimization
 
-**Use Minimal Version When:**
-- Deploying to production
-- Need fast startup times
-- Want minimal dependencies  
-- Simple deployment/installation
-- Resource-constrained environments
+### Memory Management
+- **Model loading**: Models loaded once per execution
+- **Image processing**: Efficient tensor operations
+- **GPU utilization**: Automatic device selection for optimal performance
+- **Memory cleanup**: Proper tensor disposal after processing
 
-**Use Full Version When:**
-- Need ComfyUI GUI/web interface
-- Developing advanced workflows
-- Require additional ComfyUI nodes
-- Research/experimentation
-- Integration with broader ComfyUI ecosystem
+### Processing Efficiency
+- **Direct node calls**: Bypass unnecessary framework layers
+- **Batch processing**: Single image per execution (scriptable for batches)
+- **Resolution handling**: Automatic scaling for optimal processing
+- **Format support**: Native PIL format handling for broad compatibility
+
+## Production Deployment
+
+### Recommended Setup
+1. **Use minimal version** for all production deployments
+2. **Install in isolated environment** with `venv_minimal`
+3. **Pre-download models** during deployment, not runtime
+4. **Script for batch processing** if needed
+5. **Monitor memory usage** for concurrent executions
+
+### CI/CD Integration
+```bash
+# Example CI/CD pipeline step
+source venv_minimal/bin/activate
+./red_mask_minimal input_image.jpg output_result
+# Upload output_result.png to target destination
+```
+
+### Docker Considerations
+- **Base image**: Use Python 3.12 slim
+- **Model caching**: Include models in container or mount volume
+- **Dependencies**: Install requirements_minimal.txt only
+- **Size optimization**: Multi-stage build to minimize final image
 
 ---
 
-**Current Status**: ✅ Both versions production ready with true AI detection  
-**Recommendation**: Use minimal version unless you specifically need ComfyUI framework features  
+**Current Status**: ✅ Production-ready minimal AI detection system  
+**Recommendation**: Use this version for all production deployments  
+**Performance**: Verified working with instant startup and same AI accuracy  
 **Last Updated**: August 2025  
-**Performance**: Verified working on macOS with MPS acceleration
+**Testing**: Verified on macOS with MPS acceleration
